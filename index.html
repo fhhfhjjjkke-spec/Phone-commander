@@ -1,25 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Phone Commando</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Phone Commando</title>
+<style>
+:root{--bg:#0a0f1a;--card:#131c2e;--accent:#00e5ff;--accent2:#7c4dff;--text:#e6f0ff}
+*{box-sizing:border-box;font-family:'Segoe UI',system-ui}
+body{margin:0;background:radial-gradient(1200px 600px at 20% -10%, #1a2d5a 0%, var(--bg) 60%);color:var(--text);min-height:100vh;padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.logo{font-weight:900;letter-spacing:1px;font-size:22px}
+.logo span{color:var(--accent)}
+.status-dot{width:10px;height:10px;background:#00ff88;border-radius:50%;box-shadow:0 0 12px #00ff88;display:inline-block}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:18px;backdrop-filter:blur(12px);margin-bottom:16px}
+.input-wrap{position:relative;display:flex;align-items:center;background:#0e1628;border:1px solid rgba(0,229,255,0.3);border-radius:14px;padding:4px 6px 4px 16px}
+.input-wrap input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:16px;padding:12px 0}
+.input-wrap button{width:auto !important;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;padding:10px 20px !important;border-radius:10px;margin:0 !important;font-weight:800}
+.quick{display:flex;gap:8px;overflow-x:auto;padding:8px 0}
+.chip{white-space:nowrap;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);padding:8px 14px;border-radius:99px;font-size:13px}
+#result{min-height:60px;background:#0a1222;border-radius:12px;padding:12px;font-family:monospace;font-size:13px;color:#8ef;white-space:pre-wrap;border:1px dashed rgba(0,229,255,0.2)}
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btn-grid button{margin:0 !important;background:#1a2744;border:1px solid rgba(255,255,255,0.1);color:var(--text)}
+</style>
 </head>
 <body>
-  <h1>Phone Commando</h1>
+<div class="header">
+<div class="logo">PHONE <span>COMMANDO</span></div>
+<div><span class="status-dot"></span> ONLINE</div>
+</div>
 
-  <input id="cmd" placeholder="Enter command">
+<div class="card">
+<div style="font-size:12px;opacity:0.6;margin-bottom:8px;letter-spacing:2px">AI COMMAND INTERFACE</div>
+<div class="input-wrap">
+<input id="cmd" placeholder="e.g. open camera and take photo">
+<button onclick="runCommand()">▶</button>
+</div>
+<div class="quick">
+<div class="chip" onclick="setCmd('turn on flashlight')">🔦 Flash</div>
+<div class="chip" onclick="setCmd('open camera')">📷 Camera</div>
+<div class="chip" onclick="setCmd('swipe up')">⬆️ Swipe Up</div>
+<div class="chip" onclick="setCmd('tap center')">👆 Tap</div>
+<div class="chip" onclick="setCmd('open settings')">⚙️ Settings</div>
+</div>
+</div>
 
-  <button onclick="runCommand()">
-    Execute
-  </button>
+<div class="card">
+<div id="result">> System ready.
+> Awaiting command...</div>
+<div class="btn-grid">
+<button onclick="runQuick('tap 540 1000')">Tap Center</button>
+<button onclick="runQuick('swipe 500 1500 500 500')">Swipe Up</button>
+<button onclick="runQuick('open camera')">Camera</button>
+<button onclick="runQuick('screenshot')">Screenshot</button>
+</div>
+</div>
 
-  <p id="result"></p>
-
-  <script>
-    function runCommand() {
-      const cmd = document.getElementById('cmd').value;
-      document.getElementById('result').innerText =
-        'Command received: ' + cmd;
-    }
-  </script>
+<script>
+function setCmd(t){document.getElementById('cmd').value=t; runCommand();}
+function runQuick(t){document.getElementById('cmd').value=t; runCommand();}
+function runCommand(){
+ const cmd=document.getElementById('cmd').value.trim();
+ if(!cmd) return;
+ const r=document.getElementById('result');
+ r.innerText=`> $ ${cmd}\n> Executing...\n`;
+ 
+ // Call native bridge if in APK
+ if(window.AndroidBridge && window.AndroidBridge.runAI){
+   try{ window.AndroidBridge.runAI(cmd, ""); r.innerText+=`> Sent to AiBrain.kt\n`; }catch(e){ r.innerText+=`> Bridge error: ${e}\n` }
+ } else {
+   // Preview mode in browser
+   setTimeout(()=>{ r.innerText+=`> [PREVIEW] Command received: ${cmd}\n> Install APK to execute real tap/swipe\n`; }, 400);
+ }
+ document.getElementById('cmd').value='';
+}
+document.getElementById('cmd').addEventListener('keydown',e=>{ if(e.key==='Enter') runCommand(); });
+</script>
 </body>
-</html>
+  </html>
