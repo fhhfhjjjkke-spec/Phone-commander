@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Phone Commando</title>
+</head>
+<body>
+  <h1>Phone Commando</h1>
+
+  <input id="cmd" placeholder="Enter command">
+
+  <button onclick="runCommand()">
+    Execute
+  </button>
+
+  <p id="result"></p>
+
+  <script>
+    function runCommand() {
+      const cmd = document.getElementById('cmd').value;
+      document.getElementById('result').innerText =
+        'Command received: ' + cmd;
+    }
+  </script>
+</body>
+</html>
