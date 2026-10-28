@@ -1,6 +1,0 @@
-{
-  "appId": "com.phonecommander.app",
-  "appName": "Phone Commander",
-  "webDir": "dist",
-  "plugins": { "CapacitorHttp": { "enabled": true } }
-}
