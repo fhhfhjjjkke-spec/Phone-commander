@@ -1,31 +1,42 @@
-
-name: Clear Repository Files
+name: Wipeout Repository Branch
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Also adds a manual "Run workflow" button in the Actions tab
 
 permissions:
   contents: write
 
 jobs:
-  clear:
+  wipeout:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout main
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          ref: main
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Delete all tracked files
+      - name: Configure Git Bot Identity
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git rm -r -f -- .
-          git commit -m "Remove all repository files"
+      - name: Delete All Branch Files (Preserving Workflow)
+        run: |
+          echo "Removing all files from branch..."
+          # Deletes all tracked files and folders except .git and .github (so the workflow stays available)
+          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' ! -name '.github' -exec rm -rf {} +
+          git add -A
 
-      - name: Push deletion commit
-        run: git push origin HEAD:main
-
+          # Uses [skip ci] so the wipe commit does not trigger an infinite loop
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: wipeout repository branch [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+            echo "Branch successfully wiped and updated."
+          else
+            echo "Branch is already clean. Nothing to commit."
+          fi
