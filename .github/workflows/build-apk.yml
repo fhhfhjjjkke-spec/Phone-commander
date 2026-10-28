@@ -1,4 +1,5 @@
-name: Empty Repository
+
+name: Clear Repository Files
 
 on:
   workflow_dispatch:
@@ -7,20 +8,24 @@ permissions:
   contents: write
 
 jobs:
-  empty:
+  clear:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Delete all tracked files
         run: |
-          git rm -r --ignore-unmatch .
-          git rm -r --cached --ignore-unmatch .
-          git commit -m "Start over with an empty repository"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Push changes
-        run: git push
+          git rm -r -f -- .
+          git commit -m "Remove all repository files"
+
+      - name: Push deletion commit
+        run: git push origin HEAD:main
+
